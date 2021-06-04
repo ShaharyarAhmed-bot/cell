@@ -1,18 +1,25 @@
-use crate::File;
-use crate::Row;
-use crate::Terminal;
 use std::env;
 use std::time::Duration;
 use std::time::Instant;
 use termion::color;
 use termion::event::Key;
 
+use crate::File;
+use crate::Row;
+use crate::Terminal;
+
 const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63);
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239);
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const QUIT_TIMES: u8 = 3;
 
-#[derive(Default)]
+#[derive(PartialEq, Copy, Clone)]
+pub enum SearchDirection {
+    Forward,
+    Backward,
+}
+
+#[derive(Default, Clone)]
 #[non_exhaustive]
 pub struct Position {
     pub x: usize,
@@ -35,7 +42,7 @@ impl StatusMessage {
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
-    set_cursor_position: Position,
+    cursor_position: Position,
     offset: Position,
     file: File,
     status_message: StatusMessage,
@@ -56,9 +63,10 @@ impl Editor {
             }
         }
     }
+    
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
-        let mut initial_status = String::from("HELP: Ctrl-S = save | Ctrl-Q = quit");
+        let mut initial_status = String::from("HELP: Ctrl-F = find | Ctrl-S = save | Ctrl-Q = quit");
 
         let file = if let Some(file_name) = args.get(1) {
             let doc = File::open(file_name);
@@ -79,11 +87,11 @@ impl Editor {
                 if let Ok(term) = term {
                     term
                 } else {
-                    std::panic::panic_any("Failed to initialize terminal")
+                    panic!("Failed to initialize terminal")
                 }
             },
             file,
-            set_cursor_position: Position::default(),
+            cursor_position: Position::default(),
             offset: Position::default(),
             status_message: StatusMessage::from(initial_status),
             quit_times: QUIT_TIMES,
@@ -103,8 +111,8 @@ impl Editor {
             self.draw_status_bar();
             self.draw_message_bar();
             Terminal::set_cursor_position(&Position {
-                x: self.set_cursor_position.x.saturating_sub(self.offset.x),
-                y: self.set_cursor_position.y.saturating_sub(self.offset.y),
+                x: self.cursor_position.x.saturating_sub(self.offset.x),
+                y: self.cursor_position.y.saturating_sub(self.offset.y),
             });
         }
         Terminal::cursor_show();
@@ -113,7 +121,7 @@ impl Editor {
     
     fn save(&mut self) {
         if self.file.file_name.is_none() {
-            let new_name = self.prompt("Save as: ").unwrap_or(None);
+            let new_name = self.prompt("Save as: ", |_, _, _| {}).unwrap_or(None);
             if new_name.is_none() {
                 self.status_message = StatusMessage::from("Save aborted.".to_owned());
                 return;
@@ -145,15 +153,16 @@ impl Editor {
                 self.should_quit = true;
             }
             Key::Ctrl('s') => self.save(),
+            Key::Ctrl('f') => self.search(),
             Key::Char(c) => {
-                self.file.insert(&self.set_cursor_position, c);
+                self.file.insert(&self.cursor_position, c);
                 self.move_cursor(Key::Right);
             }
-            Key::Delete => self.file.delete(&self.set_cursor_position),
+            Key::Delete => self.file.delete(&self.cursor_position),
             Key::Backspace => {
-                if self.set_cursor_position.x > 0 || self.set_cursor_position.y > 0 {
+                if self.cursor_position.x > 0 || self.cursor_position.y > 0 {
                     self.move_cursor(Key::Left);
-                    self.file.delete(&self.set_cursor_position);
+                    self.file.delete(&self.cursor_position);
                 }
             }
             Key::Up
@@ -175,7 +184,7 @@ impl Editor {
     }
 
     fn scroll(&mut self) {
-        let Position { x, y } = self.set_cursor_position;
+        let Position { x, y } = self.cursor_position;
         let width = usize::from(self.terminal.size().width);
         let height = usize::from(self.terminal.size().height);
 
@@ -197,7 +206,7 @@ impl Editor {
     #[allow(clippy::integer_arithmetic, clippy::redundant_closure_for_method_calls)]
     fn move_cursor(&mut self, key: Key) {
         let terminal_height = usize::from(self.terminal.size().height);
-        let Position { mut y, mut x } = self.set_cursor_position;
+        let Position { mut y, mut x } = self.cursor_position;
         let height = self.file.len();
         
         
@@ -254,7 +263,7 @@ impl Editor {
             x = width;
         }
 
-        self.set_cursor_position = Position { x, y }
+        self.cursor_position = Position { x, y }
     }
 
     fn draw_welcome_message(&self) {
@@ -326,7 +335,7 @@ impl Editor {
 
         let line_indicator = format!(
             "{}/{}",
-            self.set_cursor_position.y.saturating_add(1),
+            self.cursor_position.y.saturating_add(1),
             self.file.len()
         );
 
@@ -356,14 +365,58 @@ impl Editor {
         }
     }
 
-    fn prompt(&mut self, prompt: &str) -> Result<Option<String>, std::io::Error> {
+    fn search(&mut self) {
+        let old_position = self.cursor_position.clone();
+        let mut direction = SearchDirection::Forward;
+
+        let query = self
+            .prompt(
+                "Search (ESC to cancel, Arrows to navigate): ",
+                |editor, key, query| {
+                    let mut moved = false;
+                    match key {
+                        Key::Right | Key::Down => {
+                            direction = SearchDirection::Forward;
+                            editor.move_cursor(Key::Right);
+                            moved = true;
+                        }
+                        Key::Left | Key::Up => direction = SearchDirection::Backward,
+                        _ => direction = SearchDirection::Forward,
+                    }
+                    if let Some(position) =
+                        editor
+                            .file
+                            .find(&query, &editor.cursor_position, direction)
+                    {
+                        editor.cursor_position = position;
+                        editor.scroll();
+                        
+                    } else if moved {
+                        editor.move_cursor(Key::Left);
+                    }
+                },
+            )
+            .unwrap_or(None);
+
+        if query.is_none() {
+            self.cursor_position = old_position;
+            self.scroll();
+        }
+    }
+
+    fn prompt<C>(&mut self, prompt: &str, mut callback: C) -> Result<Option<String>, std::io::Error> 
+    where
+        C: FnMut(&mut Self, Key, &String),
+    {
         let mut result = String::new();
 
         loop {
             self.status_message = StatusMessage::from(format!("{}{}", prompt, result));
             self.refresh_screen()?;
 
-            match Terminal::read_key()? {
+            let key = Terminal::read_key()?;
+
+            match key {
                 Key::Backspace => result.truncate(result.len().saturating_sub(1)),
                 Key::Char('\n') => break,
                 Key::Char(c) => {
@@ -377,6 +430,8 @@ impl Editor {
                 }
                 _ => (),
             }
+
+            callback(self, key, &result);
         }
         
         self.status_message = StatusMessage::from(String::new());
@@ -389,5 +444,5 @@ impl Editor {
 
 fn die(e: std::io::Error) {
     Terminal::clear_screen();
-    std::panic::panic_any(e);
+    panic!(e);
 }
