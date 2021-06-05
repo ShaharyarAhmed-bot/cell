@@ -6,9 +6,11 @@
     clippy::print_stdout,
     clippy::wildcard_enum_match_arm,
     clippy::else_if_without_else
-)] 
+)]
+
 mod file;
 mod editor;
+mod highlighting;
 mod row;
 mod terminal;
 

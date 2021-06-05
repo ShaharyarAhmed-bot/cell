@@ -3,10 +3,12 @@ use termion::color;
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::SearchDirection;
+use crate::highlighting;
 
 #[derive(Default)]
 pub struct Row {
     string: String,
+    highlighting: Vec<highlighting::Type>,
     len: usize,
 }
 
@@ -14,6 +16,7 @@ impl From<&str> for Row {
     fn from(slice: &str) -> Self {
         Self {
             string: String::from(slice),
+            highlighting: Vec::new(),
             len: slice.graphemes(true).count(),
         }
     }
@@ -26,31 +29,44 @@ impl Row {
         let start = cmp::min(start, end);
         let mut result = String::new();
 
+        let mut current_highlighting = &highlighting::Type::None;
+
         #[allow(clippy::integer_arithmetic)]
-        for grapheme in self.string[..]
+        for (index, grapheme) in self.string[..]
             .graphemes(true)
+            .enumerate()
             .skip(start)
             .take(end - start)
         {
             if let Some(c) = grapheme.chars().next() {
+                let highlighting_type = self 
+                    .highlighting
+                    .get(index)
+                    .unwrap_or(&highlighting::Type::None);
+
+                if highlighting_type != current_highlighting {
+                    current_highlighting = highlighting_type;
+
+                    let start_highlight = 
+                        format!("{}", termion::color::Fg(highlighting_type.to_color()));
+                
+                    result.push_str(&start_highlight[..]);
+                }
+
                 if c == '\t' {
                     #[allow(clippy::single_char_add_str)]
                     result.push_str(" ");
 
-                } else if c.is_ascii_digit() {
-                    result.push_str(
-                        &format!(
-                            "{}{}{}",
-                            termion::color::Fg(color::Rgb(220, 163, 163)),
-                            c,
-                            color::Fg(color::Reset)
-                        )[..],
-                    );
                 } else {
                     result.push(c);
                 }
+
             }
         }
+
+        let end_highlight = format!("{}", termion::color::Fg(color::Reset));
+        result.push_str(&end_highlight[..]);
+
         result
     }
 
@@ -135,6 +151,7 @@ impl Row {
         
         Self {
             string: splitted_row,
+            highlighting: Vec::new(),
             len: splitted_length,
         }
     }
@@ -185,5 +202,19 @@ impl Row {
             }
         }
         None
+    }
+
+    pub fn highlighting(&mut self) {
+        let mut highlighting = Vec::new();
+
+        for c in self.string.chars() {
+            if c.is_ascii_digit() {
+                highlighting.push(highlighting::Type::Number);
+            } else {
+                highlighting.push(highlighting::Type::None);
+            }
+        }
+
+        self.highlighting = highlighting;
     }
 }

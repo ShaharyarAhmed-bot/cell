@@ -11,4 +11,7 @@ On Day 3 I finished the file viewer. The user was now able to scroll and view th
 On Day 4 I finally was able to turn cell from a text viewer into a proper text editor. The user could now view and edit the text file and also save it. Users could also make new files and save them. I also setup clippy and refactored my code. I also added a bunch of performance related improvements
 
 # Day 5 of development
-On Day 4 I finished the search feature and started to work on the syntax highlighting feature. Today was a pretty lazy day so I didnt do much hehehe hopefully I will be able to finish the syntax highlighting feature and also add detection for filetypes.
+On Day 5 I finished the search feature and started to work on the syntax highlighting feature. Today was a pretty lazy day so I didnt do much hehehe hopefully I will be able to finish the syntax highlighting feature and also add detection for filetypes.
+
+# Day 6 of development
+I didnt do anything at all today OMG!! I just worked on the syntax highlighting feature for a bit. I really hope I get it done before the weekend ends!
