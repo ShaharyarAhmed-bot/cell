@@ -15,3 +15,6 @@ On Day 5 I finished the search feature and started to work on the syntax highlig
 
 # Day 6 of development
 I didnt do anything at all today OMG!! I just worked on the syntax highlighting feature for a bit. I really hope I get it done before the weekend ends!
+
+# Day 7 - 8 of development
+I got really busy with school and work, I didnt get time to do anything on day 7. Thankfully on day 8 I got time and I finally finished the syntax highlighting feature and added filetype detection!

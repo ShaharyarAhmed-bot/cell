@@ -9,12 +9,15 @@
 )]
 
 mod file;
+mod filetype;
 mod editor;
 mod highlighting;
 mod row;
 mod terminal;
 
 pub use file::File;
+pub use filetype::FileType;
+pub use filetype::HighlightingOptions;
 use editor::Editor;
 pub use editor::Position;
 pub use row::Row;

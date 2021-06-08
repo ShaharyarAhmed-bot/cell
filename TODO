@@ -1,8 +1,9 @@
 [X]  Improve the file viewer so that the user can scroll through and view the whole file
 [X]  Add a status and message bar
 [X]  Allow user to insert text and edit the file
-[]  Add a search feature
-[]  Add syntax highlighting
+[X]  Add a search feature
+[X]  Add syntax highlighting
+[X]  Add filetype detection
 []  Make a proper project directory structure with folders and everything
 
 
