@@ -8,10 +8,9 @@
 
 <h4 align="center">A minimal command line text editor written in Rust</h4>
 
-<center><p float = "middle">
-<a href="https://www.rust-lang.org/"><img alt="Rust" src="https://img.shields.io/badge/-Rust-C93A42?style=flat-square&logo=rust&logoColor=black%22"></a> </center>
+<center><a href="https://www.rust-lang.org/"><img alt="Rust" src="https://img.shields.io/badge/-Rust-C93A42?style=flat-square&logo=rust&logoColor=black%22"></a> </center>
 
-</p>
+
 
 ***Development status:*** *The cell editor project is something I made in my free
 time and is not something I activly work on. I would love to work on it more but
