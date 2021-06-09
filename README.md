@@ -57,6 +57,9 @@ MacOS and Windows is coming soon! As soon as I learn how to package it for <a hr
 ## Installation
 ### Linux
 
+***NOTE***: *I have created a new revision for cellionor on <a href="https://snapcraft.io">Snapcraft</a> which is currently being reviewed therfore it cannot be installed right now. However you can still install cell on Arch Linux and build the project on your own. When the reviewing process is done I will update this section.*
+
+
 To install cell on linux install <a href="https://snapcraft.io/docs/installing-snapd">snap</a>
 on your linux distrubution.
 
@@ -72,11 +75,11 @@ After installing snap excecute the following:
 
 You can install cell on Arch Linux using the pacman package manager or any <a href="https://wiki.archlinux.org/title/AUR_helpers">AUR</a> helper:
 
-`pacman -S cell`
+`pacman -S cell-bin`
 
 I have used the <a href="https://github.com/Jguer/yay">yay</a> AUR helper as an example here:
 
-`yay -S cell`
+`yay -S cell-bin`
 
 
 ### Windows

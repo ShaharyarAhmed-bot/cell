@@ -3,8 +3,11 @@ name = "cell"
 version = "0.1.0"
 authors = ["Shaharyar Ahmed <shaharyar.ahmed1121@gmail.com>"]
 edition = "2018"
+description = "A minimal command line text editor developed using Rust"
+homepage = "https://aur.archlinux.org/packages/cell/"
+repository = "https://github.com/ShaharyarAhmed-bot/cell"
+license = "GNU"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 termion = "1"
