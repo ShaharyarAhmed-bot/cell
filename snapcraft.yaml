@@ -1,9 +1,9 @@
-name: cellionor 
+name: cell-bin
 base: core18 
 version: '0.1'
-summary: A Minimal command line text editor # 79 char long summary
+summary: A Minimal command line text editor 
 description: |
-  Cellionor or cell for short is a minimal command line text editor developed using Rust. 
+  Cell is a minimal command line text editor developed using Rust. 
   It is still in development. It is an open source project so feel free to contribuite!
 
   https://github.com/ShaharyarAhmed-bot/cell
@@ -12,10 +12,10 @@ grade: stable
 confinement: classic
 
 parts:
-  cellionor:
+  cell-bin:
     source: https://github.com/ShaharyarAhmed-bot/cell.git
     plugin: rust
 
 apps:
-  cellionor:
+  cell-bin:
     command: bin/cell
