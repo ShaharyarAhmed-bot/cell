@@ -9,6 +9,10 @@
     <a href="https://github.com/ShaharyarAhmed-bot/cell/blob/main/LICENSE">
         <img alt="GitHub" src="https://img.shields.io/github/license/ShaharyarAhmed-bot/cell?color=red">
     </a>
+
+  <a href="https://snapcraft.io/cell-bin">
+  <img alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg" />
+</a>
 </h1>
 
 
@@ -62,9 +66,6 @@ MacOS and Windows is coming soon! As soon as I learn how to package it for <a hr
 ## Installation
 ### Linux
 
-***NOTE***: *I have created a new revision for cell on <a href="https://snapcraft.io">Snapcraft</a> which is currently being reviewed therfore it cannot be installed right now. However you can still install cell on Arch Linux and build the project on your own. When the reviewing process is done I will update this section.*
-
-
 To install cell on Linux install <a href="https://snapcraft.io/docs/installing-snapd">snap</a>
 on your Linux distrubution.
 
@@ -72,7 +73,13 @@ If you are running Arch Linux go and read the Arch Linux section down below....
 
 After installing snap excecute the following:
 
-`sudo snap install cellionor`
+`sudo snap install cell-bin`
+
+If you want to install cell from the edge channel
+
+`sudo snap install cell-bin --edge`
+
+> :warning: **If you are installing from the edge channel**: Keep in mind snaps in the edge channel may break often!
 
 
 
@@ -124,3 +131,4 @@ This project is licensed under the GNU GENERAL PUBLIC LICENSE V3 [license](LICEN
 
 I will gladly accept contributions via GitHub pull requests. I will
 soon add a CONTRIBUTING.md for more details.
+
