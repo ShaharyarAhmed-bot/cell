@@ -3,14 +3,16 @@
   
   <a href="https://github.com/ShaharyarAhmed-bot/cell">Cell</a>
   
+
+
+<a href="https://www.rust-lang.org/"><img alt="Rust" src="https://img.shields.io/badge/-Rust-C93A42?style=flat-square&logo=rust&logoColor=black%22"></a> 
+    <a href="https://github.com/ShaharyarAhmed-bot/cell/blob/main/LICENSE">
+        <img alt="GitHub" src="https://img.shields.io/github/license/ShaharyarAhmed-bot/cell?color=red">
+    </a>
 </h1>
 
 
 <h4 align="center">A minimal command line text editor written in Rust</h4>
-
-<center><a href="https://www.rust-lang.org/"><img alt="Rust" src="https://img.shields.io/badge/-Rust-C93A42?style=flat-square&logo=rust&logoColor=black%22"></a> </center>
-
-
 
 ***Development status:*** *The cell editor project is something I made in my free
 time and is not something I activly work on. I would love to work on it more but
