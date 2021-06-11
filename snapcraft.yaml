@@ -9,7 +9,7 @@ description: |
   https://github.com/ShaharyarAhmed-bot/cell
 
 grade: stable
-confinement: classic
+confinement: strict
 
 parts:
   cell-bin:
