@@ -3,7 +3,7 @@ use termion::color;
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::SearchDirection;
-use crate::highlighting;
+use crate::fil::highlighting;
 use crate::HighlightingOptions;
 
 #[derive(Default)]

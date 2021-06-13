@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::{Error, Write};
 
-use crate::FileType;
+use super::filetype::FileType;
 use crate::Position;
 use crate::Row;
 use crate::SearchDirection;
@@ -18,7 +18,7 @@ pub struct File {
 impl File {
 
     /// # Errors
-    /// 
+    /// If it fails to open the file it will return a Error 
     /// 
     pub fn open(filename: &str) -> Result<Self, std::io::Error> {
         let contents = fs::read_to_string(filename)?;
@@ -125,7 +125,7 @@ impl File {
     }
 
     /// # Errors 
-    ///
+    /// Returns a Error if there is some issue in saving the file
     /// 
     pub fn save(&mut self) -> Result<(), Error> {
         #[allow(clippy::pattern_type_mismatch)]

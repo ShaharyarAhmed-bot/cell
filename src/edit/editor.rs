@@ -7,6 +7,7 @@ use termion::event::Key;
 use crate::File;
 use crate::Row;
 use crate::Terminal;
+use crate::Mode;
 
 const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63);
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239);
@@ -68,6 +69,15 @@ impl Editor {
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
         let mut initial_status = String::from("HELP: Ctrl-F = find | Ctrl-S = save | Ctrl-Q = quit");
+        
+        let mut terminal = if let Ok(terminal) = Terminal::default() {
+            terminal
+
+        } else{
+            panic!("Failed to initialize terminal")
+        };
+
+        terminal.switch_to_command_mode();
 
         let file = if let Some(file_name) = args.get(1) {
             let doc = File::open(file_name);
@@ -83,14 +93,7 @@ impl Editor {
 
         Self {
             should_quit: false,
-            terminal: {
-                let term = Terminal::default();
-                if let Ok(term) = term {
-                    term
-                } else {
-                    panic!("Failed to initialize terminal")
-                }
-            },
+            terminal,
             file,
             cursor_position: Position::default(),
             offset: Position::default(),
@@ -166,14 +169,33 @@ impl Editor {
             Key::Ctrl('s') => self.save(),
             Key::Ctrl('f') => self.search(),
             Key::Char(c) => {
-                self.file.insert(&self.cursor_position, c);
-                self.move_cursor(Key::Right);
-            }
-            Key::Delete => self.file.delete(&self.cursor_position),
-            Key::Backspace => {
-                if self.cursor_position.x > 0 || self.cursor_position.y > 0 {
+                if let Mode::InsertMode(true) = self.terminal.mode {
+                    self.file.insert(&self.cursor_position, c);
+                    self.move_cursor(Key::Right);
+                } else if let Key::Char('h') = pressed_key {
                     self.move_cursor(Key::Left);
-                    self.file.delete(&self.cursor_position);
+
+                } else if let Key::Char('j') = pressed_key {
+                    self.move_cursor(Key::Down);
+
+                } else if let Key::Char('k') = pressed_key {
+                    self.move_cursor(Key::Up);
+
+                } else if let Key::Char('l') = pressed_key {
+                    self.move_cursor(Key::Right);
+                } 
+            }
+            Key::Delete => {
+                if let Mode::InsertMode(true) = self.terminal.mode {
+                    self.file.delete(&self.cursor_position)
+                }
+            },
+            Key::Backspace => {
+                if let Mode::InsertMode(true) = self.terminal.mode {
+                    if self.cursor_position.x > 0 || self.cursor_position.y > 0 {
+                        self.move_cursor(Key::Left);
+                        self.file.delete(&self.cursor_position);
+                    }
                 }
             }
             Key::Up
@@ -184,6 +206,15 @@ impl Editor {
             | Key::PageDown
             | Key::End
             | Key::Home => self.move_cursor(pressed_key),
+
+            Key::Esc => {
+                if let Mode::CommandMode(true) = self.terminal.mode {
+                    self.terminal.switch_to_insert_mode();
+
+                } else if let Mode::InsertMode(true) = self.terminal.mode {
+                    self.terminal.switch_to_command_mode();
+                }
+            }
             _ => (),
         }
         self.scroll();

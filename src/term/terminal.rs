@@ -6,6 +6,11 @@ use termion::color;
 
 use crate::Position;
 
+pub enum Mode {
+    InsertMode(bool),
+    CommandMode(bool)
+}
+
 pub struct Size {
     pub width: u16,
     pub height: u16,
@@ -13,12 +18,13 @@ pub struct Size {
 pub struct Terminal {
     size: Size,
     _stdout: RawTerminal<std::io::Stdout>,
+    pub mode: Mode
 }
 
 impl Terminal {
 
     /// # Errors
-    /// 
+    /// It will return a error if the terminal fails to switch into Raw Mode
     /// 
     pub fn default() -> Result<Self, std::io::Error> {
         let size = termion::terminal_size()?;
@@ -30,6 +36,7 @@ impl Terminal {
             },
 
             _stdout: stdout().into_raw_mode()?,
+            mode: Mode::CommandMode(true),
         })
     }
 
@@ -83,15 +90,28 @@ impl Terminal {
         print!("{}", termion::clear::CurrentLine);
     }
 
+    pub fn switch_to_command_mode(&mut self) {
+        print!("{}", termion::cursor::BlinkingBlock);
+        
+        self.mode = Mode::CommandMode(true);
+    }
+
+    pub fn switch_to_insert_mode(&mut self) {
+        print!("{}", termion::cursor::BlinkingBar);
+
+        self.mode = Mode::InsertMode(true);
+
+    }
+
     /// # Errors
-    /// 
+    /// If output stream flush failed it will return a Error
     /// 
     pub fn flush() -> Result<(), std::io::Error> {
         io::stdout().flush()
     }
 
     /// # Errors
-    /// 
+    /// Returns a error if there is some issue in reading the keys
     /// 
     pub fn read_key() -> Result<Key, std::io::Error> {
         loop {
